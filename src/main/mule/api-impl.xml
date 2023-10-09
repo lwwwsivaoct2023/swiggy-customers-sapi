@@ -6,7 +6,7 @@
 http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
 http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
 	<flow name="updateCustomer" doc:id="fdc94059-4683-4ee3-951d-463a100de045" >
-		<flow-ref doc:name="findCustomerById-and-setcustomer-var" doc:id="b647f933-8e02-4a6e-bcc8-417e105661ce" name="findCustomerById" target="customer" targetValue="#[payload[0]]"/>
+		<flow-ref doc:name="findCustomerById-and-setcustomer-var" doc:id="b647f933-8e02-4a6e-bcc8-417e105661ce" name="findCustomerById" target="customer"/>
 		<db:update doc:name="Update" doc:id="af7bcda5-404c-4c95-ae73-6df05f5a31b6" config-ref="Database_Config">
 			<db:sql ><![CDATA[update customers set last_name= :lname,first_name= :fname
 ,email= :email,phone=:phone where customer_id=:id  ]]></db:sql>
@@ -32,26 +32,6 @@ else
 			</ee:message>
 		</ee:transform>
 		<logger level="INFO" doc:name="Logger" doc:id="d55a1186-da20-46a8-b9f9-cf7ba91f11bf" message="customer updated succesfully"/>
-		<error-handler >
-			<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="a447b194-5da0-44b3-80c5-9bda7b6d6aaf" >
-				<ee:transform doc:name="Set Status to 404 and erroe message" doc:id="b5a49624-3787-4c61-a3b1-a6976e7355a6" >
-					<ee:message >
-						<ee:set-payload ><![CDATA[%dw 2.0
-output application/json
----
-{
-	message: "Customer with id " ++ (vars.id default 0 as String ) ++" is not found" 
-}]]></ee:set-payload>
-					</ee:message>
-					<ee:variables >
-						<ee:set-variable variableName="httpStatus" ><![CDATA[%dw 2.0
-output application/java
----
-404]]></ee:set-variable>
-					</ee:variables>
-				</ee:transform>
-			</on-error-continue>
-		</error-handler>
 	</flow>
 	<flow name="addCustomer" doc:id="b2694f0d-0a2b-4455-9eff-9c764ed46ac7" >
 		<ee:transform doc:name="Transform Message" doc:id="3a6a8e40-5477-4e9a-961a-0780c2a680f3" >
@@ -139,28 +119,8 @@ fun mapAddresses(addresses)=
 		</ee:transform>
 	</flow>
 	<flow name="getcustomerbyid" doc:id="ed28d298-86a0-45fa-aa86-7b42c1d232f6" >
-		<flow-ref doc:name="findCustomerById" doc:id="fc6a94e7-7ecd-437e-be1b-0efcec69e39b" name="findCustomerById" targetValue="#[payload[0]]" target="customer"/>
+		<flow-ref doc:name="findCustomerById" doc:id="fc6a94e7-7ecd-437e-be1b-0efcec69e39b" name="findCustomerById" target="customer"/>
 		<flow-ref doc:name="findAddressByCustomerId-and-Addit-to-customer" doc:id="32a0a38a-8305-484f-8156-b7e7684bb4d4" name="findAddressByCustomerId-and-Addit-to-customer"/>
-		<error-handler>
-			<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="e763ce9c-91c9-4eb9-87f5-bb8e86e4772e" >
-				<ee:transform doc:name="Set Status to 404 and error message" doc:id="2184180f-0a19-4fa7-9c48-d70b1996b222" >
-					<ee:message >
-						<ee:set-payload ><![CDATA[%dw 2.0
-output application/json
----
-{
-	message: "Customer with id " ++ (vars.id default 0 as String ) ++" is not found" 
-}]]></ee:set-payload>
-					</ee:message>
-					<ee:variables >
-						<ee:set-variable variableName="httpStatus" ><![CDATA[%dw 2.0
-output application/java
----
-404]]></ee:set-variable>
-					</ee:variables>
-				</ee:transform>
-			</on-error-continue>
-		</error-handler>
 	</flow>
 	<flow name="addAddressToCustomer" doc:id="9b3befa1-8f03-4e5d-9d69-d2cb566191ee" >
 		<flow-ref doc:name="findCustomerById" doc:id="e8873efd-c315-428b-a47e-ee69363e435f" name="findCustomerById" target="customer" targetValue="#[payload[0]]"/>
@@ -183,31 +143,10 @@ address_type,customer_id) values (:housenumber,:street,:city,
 output application/json
 ---
 {
-	message: "Address Added to Customer with id "++ vars.id ++ " successfullt"
+	message: "Address Added to Customer with id "++ vars.id ++ " successfully"
 }]]></ee:set-payload>
 			</ee:message>
 		</ee:transform>
-		<error-handler >
-			<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="eece788f-1951-43c6-bf4b-9a13926133a5" >
-				<ee:transform doc:name="Set Status to 404 and error message" doc:id="d3706358-ce7f-4703-9324-d08ff4e80d6e" >
-					<ee:message >
-						<ee:set-payload ><![CDATA[%dw 2.0
-output application/json
----
-{
-	message: "Customer with id " ++ (vars.id default 0 as String ) ++" is not found.
-				Cannot add address to a customer which doesnot exist" 
-}]]></ee:set-payload>
-					</ee:message>
-					<ee:variables >
-						<ee:set-variable variableName="httpStatus" ><![CDATA[%dw 2.0
-output application/java
----
-404]]></ee:set-variable>
-					</ee:variables>
-				</ee:transform>
-			</on-error-continue>
-		</error-handler>
 	</flow>
 	<sub-flow name="findCustomerById" doc:id="092c6478-9e4b-4c1b-89ba-3bb681eb9c39" >
 		<db:select doc:name="Select Customer ById" doc:id="a855b613-de7c-4bff-988f-42c68b9c5015" config-ref="Database_Config" >
@@ -216,18 +155,14 @@ output application/java
 	cid: vars.id default 0 as String
 }]]]></db:input-parameters>
 		</db:select>
-		<ee:transform doc:name="Check if Customer Exists and throw error" doc:id="58ce4ecd-8011-4b2f-a71a-883d009a09ed" >
-			<ee:message >
-				<ee:set-payload ><![CDATA[%dw 2.0
-output application/json
----
-
-
-dw::Runtime::failIf(payload,
-	(value)->isEmpty(value) ,"Customer Not Found"
-)]]></ee:set-payload>
-			</ee:message>
-		</ee:transform>
+		<choice doc:name="Choice" doc:id="c1b0ad84-c872-407c-8deb-975ff7f5586c" >
+			<when expression="#[isEmpty(payload)]">
+				<raise-error doc:name="Raise error" doc:id="1cd1424f-bf65-41de-b685-204b4a75eb63" type="APP:DOESNOT_EXIST" description="Customer with id  is not found" />
+			</when>
+			<otherwise >
+				<set-payload value="#[payload[0]]" doc:name="Set Customer As Payload" doc:id="122475d3-2801-497e-a637-d83142c497cd" />
+			</otherwise>
+		</choice>
 	</sub-flow>
 	<flow name="getallcustomers" doc:id="21228dfa-c97b-4d3f-89b9-da83ad85c26a" >
 		<db:select doc:name="Select" doc:id="bddb0bff-bc90-42ca-8d17-78e2b0a9f77b" config-ref="Database_Config">
@@ -266,6 +201,6 @@ var customersmappedWithAddresses = customersGroupedById mapObject (V,K,I)-> {
 customersmappedWithAddresses pluck (V,K,I)-> V]]></ee:set-payload>
 			</ee:message>
 		</ee:transform>
-		<logger level="INFO" doc:name="Logger" doc:id="3a6abddb-3d7b-4a21-8d4a-8b88cc2b40a1" message="#[payload]"/>
+		<logger level="INFO" doc:name="Logger" doc:id="3a6abddb-3d7b-4a21-8d4a-8b88cc2b40a1" message="#[payload]" />
 	</flow>
 </mule>
