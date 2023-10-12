@@ -5,4 +5,4 @@ db:
   host: localhost
   username: root
   password: root
-  name: swiggy-customerdb
+  name: swiggydb
