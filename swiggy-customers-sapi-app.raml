@@ -1,2 +1,21 @@
 #%RAML 1.0
 title: swiggy-customers-sapi-app
+
+baseUri: localhost:8081
+mediaType: application/json
+
+types:
+ Address: !include /datatype/Address.raml
+ CustomerProfile: !include /datatype/customerprofile.raml
+ ErrorMessage: !include /datatype/ErrorMessage.raml 
+ 
+resourceTypes:
+ collection: !include /Resource/collection.raml
+ member: !include /Resource/member.raml
+
+/costomers:
+ type: collection
+ get:
+ post:
+ /id:
+  

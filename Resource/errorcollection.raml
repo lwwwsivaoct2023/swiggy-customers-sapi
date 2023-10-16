@@ -1,0 +1,27 @@
+#%RAML 1.0 ResourceType
+post?:
+
+  body:
+
+  responses: 
+
+    409:
+      body:
+        application/json:  
+          {
+  "status": "409",
+  "message": "A Customer with same email/phone already exists"
+}
+get?:
+   body:
+
+    responses: 
+  
+      409:
+        body:
+          application/json:  
+            {
+  "status": "409",
+  "message": "A Customer with same email/phone already exists"
+} 
+                       
