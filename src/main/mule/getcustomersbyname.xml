@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:db="http://www.mulesoft.org/schema/mule/db"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<flow name="getcustomersbynameFlow" doc:id="eee4b58b-0b5c-457c-9a76-220310ececd7" >
+		<db:select doc:name="Select" doc:id="e76e71ca-3e05-4c96-944c-17b1e4c7f376" config-ref="Database_Config">
+			<db:sql ><![CDATA[select * from customers where last_name = :lastname
+LIMIT :limit OFFSET :OFFSET
+
+
+]]></db:sql>
+			<db:input-parameters ><![CDATA[#[{
+	lastname: vars.lastname as String,
+	limit: vars.pageSize as Number default 2,
+	offset: (vars.page as Number -1)* vars.pageSize as Number default 0
+}]]]></db:input-parameters>
+		</db:select>
+		<ee:transform doc:name="Transform Message" doc:id="874277a5-1201-4f3d-81e4-d35c33502bac" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload map ( item, index)  -> {
+	custtomerId: item.customerId,
+	lastname: item.lastName,
+	fisrtname: item.firstName,
+	email: item.email,
+	phone: item.phone,
+	addresses: {
+		houseNumber: item.houseNumber,
+		street: item.street,
+		city: item.city,
+		pincode: item.pincode,
+		
+	}
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="b2e44603-bc38-4f1b-bd73-e4d58f93b9a2" />
+	</flow>
+</mule>

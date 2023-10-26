@@ -1,0 +1,5 @@
+db:
+  host: localhost 
+  username: root
+  password: Merkato1997!
+  name: customerdb

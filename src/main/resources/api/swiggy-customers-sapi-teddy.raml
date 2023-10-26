@@ -1,0 +1,54 @@
+#%RAML 1.0
+title: swiggy-customers-sapi-Teddy
+baseUri: http://localhost:8081/api
+mediaType: application/json
+types:
+  Customer: !include datatypes/Customer.raml
+  Address: !include datatypes/Address.raml
+  Errormessage: !include datatypes/Errormessage.raml
+traits:
+  Pageable: !include traits/Pageable.raml
+resourceTypes:
+  collection: !include resources/collection.raml
+  member: !include resources/member.raml
+
+
+/customers:
+  type: collection
+  post:
+   
+    responses:
+     
+      409:
+        body:
+            type: Errormessage
+            example:
+              {
+  "status": "409",
+  "message": "A Customer with same email/phone already exists"
+}
+    
+          
+  get:
+    is: [Pageable]
+    description: Get All Customers
+    
+    responses:
+      200:
+        body:
+            
+      500:
+        
+            
+
+
+
+
+                   
+    
+      
+  
+
+  
+        
+          

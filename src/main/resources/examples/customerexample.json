@@ -1,0 +1,16 @@
+[{
+  "lastName": "",
+  "firstName": "",
+  "email": "",
+  "customerId": "",
+  "phone": "",
+  "addresses": [
+    {
+      "houseNumber": "",
+      "street": "",
+      "city": "",
+      "pincode": "",
+      "addressType": "billing"
+    }
+  ]
+}]
