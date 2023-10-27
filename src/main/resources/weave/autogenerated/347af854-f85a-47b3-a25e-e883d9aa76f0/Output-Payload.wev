@@ -1,0 +1,16 @@
+%dw 2.0
+
+type auto_347af854_f85a_47b3_a25e_e883d9aa76f0_Output_Payload = org_mule_extension_db_api_StatementResult | Array<{ _?: java_lang_Object }>
+type org_mule_extension_db_api_StatementResult = {|
+  affectedRows?: Number, 
+  generatedKeys?: { _?: Number }
+|} {"typeAlias": "StatementResult",
+"typeId": "org.mule.extension.db.api.StatementResult"}
+
+
+type java_lang_Object = {|  |} {"typeAlias": "Object",
+"class": "java.lang.Object",
+"typeId": "java.lang.Object"}
+
+
+
