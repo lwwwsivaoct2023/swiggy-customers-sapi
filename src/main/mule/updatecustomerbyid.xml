@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns:os="http://www.mulesoft.org/schema/mule/os"
+	xmlns:db="http://www.mulesoft.org/schema/mule/db" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
+http://www.mulesoft.org/schema/mule/os http://www.mulesoft.org/schema/mule/os/current/mule-os.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<http:request-config name="HTTP_Request_configuration" doc:name="HTTP Request configuration" doc:id="93df6d65-3c5a-44ae-8a59-5d4adc1be06d" basePath="/api">
+		<http:request-connection protocol="HTTPS" host="localhost" port="8081" />
+	</http:request-config>
+	<flow name="updatecustomerbyidFlow" doc:id="347af854-f85a-47b3-a25e-e883d9aa76f0" initialState="started">
+		<flow-ref doc:name="getcustomerbyidFlow" doc:id="651172df-c152-4fe6-8ef7-abd386e0ebd3" name="getcustomerbyidFlow"/>
+		<db:update doc:name="UpdateCustomer" doc:id="a4d8064c-5631-48b6-906c-ef0e00ae5267" config-ref="Database_Config">
+					<db:sql><![CDATA[update customers set last_name= :lname,first_name= :fname
+,email= :email,phone=:phone where customer_id=:id  ]]></db:sql>
+					<db:input-parameters><![CDATA[#[{
+	id: vars.id,
+	lname: payload.lastName default vars.customer.last_name,
+	fname: payload.firstName default vars.customer.first_name,
+	email: payload.email default vars.customer.email,
+	phone: payload.phone default vars.customer.phone
+}]]]></db:input-parameters>
+				</db:update>
+		<ee:transform doc:name="Transform Message" doc:id="5329eaf0-c9e9-4cb1-83e9-ae71e1224d7f">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+if(payload.affectedRows==0)
+dw::Runtime::fail("Customer with ID " ++ vars.id ++ "  not found")
+else 
+{
+  message: "Customer updated successfully"
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="16cc9421-c17e-4d58-9f73-060f66e9cda3" />
+	</flow>
+</mule>

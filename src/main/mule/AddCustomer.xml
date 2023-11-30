@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:db="http://www.mulesoft.org/schema/mule/db"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd">
+	<flow name="Addcustomer" doc:id="9ffe3ad3-c488-4cc8-9866-400fbeb86f74">
+		<db:insert doc:name="Insert" doc:id="f04ae9fc-f573-4ee3-b78a-4dcc975f3ce0" config-ref="Database_Config" autoGenerateKeys="true" target="insertresult">
+			<db:sql ><![CDATA[INSERT INTO `customers`
+(`last_name`,`first_name`,`email`,`phone`)
+VALUES(:lname,:fname,:email,:phone);
+]]></db:sql>
+			<db:input-parameters ><![CDATA[#[{
+	lname: vars.originalCustomer.lastName,
+	fname: vars.originalCustomer.firstName,
+	email: vars.originalCustomer.email,
+	phone: vars.originalCustomer.phone,
+	
+}]]]></db:input-parameters>
+			<db:auto-generated-keys-column-names >
+				<db:auto-generated-keys-column-name value="customer_id" />
+			</db:auto-generated-keys-column-names>
+		</db:insert>
+		<ee:transform doc:name="Transform Message" doc:id="8404f942-9992-407b-8f74-4b99ebfcdb71" >
+			<ee:message >
+			</ee:message>
+			<ee:variables >
+				<ee:set-variable variableName="customerId" ><![CDATA[%dw 2.0
+output application/java
+---
+vars.insertresult.generatedKeys.GENERATED_KEY]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<foreach doc:name="For Each" doc:id="3dac18e4-deaf-4fa7-92d6-e3912ffb8f6a" collection="#[vars.originalCustomer.addresses]">
+			<db:insert doc:name="Insert" doc:id="20aa3c37-aab5-4731-b656-3dfde0bdba20" config-ref="Database_Config">
+				<db:sql ><![CDATA[INSERT INTO address
+(house_number,street,city,pincode,
+address_type,customer_id)
+VALUES(:hn,:street,:city,:pc,:adt, :cid);]]></db:sql>
+				<db:input-parameters ><![CDATA[#[{
+
+	hn: payload.houseNumber,
+	street: payload.street,
+	city: payload.city,
+	pc: payload.pincode,
+	adt: payload.addressType,
+	cid: vars.customerId
+	}]]]></db:input-parameters>
+			</db:insert>
+		</foreach>
+		<ee:transform doc:name="Transform Message" doc:id="71c5c9aa-bb12-4cb1-b473-63af411c3a1f" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	message: "Address Added to Customer with id "++ vars.customerId  as String++ " successfully"
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="0d745ee4-4a8d-4a08-9f7a-03b7d2689eea" message="#[payload]"/>
+	</flow>
+</mule>

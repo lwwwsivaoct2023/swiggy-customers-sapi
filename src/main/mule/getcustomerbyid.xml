@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:db="http://www.mulesoft.org/schema/mule/db"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<flow name="getcustomerbyidFlow" doc:id="ba567b9f-5a3b-435e-a890-31264c92e998">
+		<db:select doc:name="Select" doc:id="8f46e24b-6292-4adf-af9e-ac750e749f7d" config-ref="Database_Config">
+			<db:sql ><![CDATA[SELECT c.customer_id,c.last_name,c.first_name,c.email,c.phone,
+ad.house_number,ad.street,ad.city,ad.pincode,ad.address_type,ad.address_id
+ FROM customers c left  join address ad  on  c.customer_id=ad.customer_id where c.customer_id like :id
+]]></db:sql>
+			<db:input-parameters ><![CDATA[#[{
+	id: "%" ++ vars.id as String ++ "%",
+
+}]]]></db:input-parameters>
+		</db:select>
+		<ee:transform doc:name="Transform Message" doc:id="0d4aae96-f11d-445d-9a34-1cee8b4fd473" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+var customersGroupedById = payload groupBy ((item, index) -> item.customer_id )
+
+var customersmappedWithAddresses = customersGroupedById mapObject (V,K,I)-> {
+	(K):{
+		customerId: K,
+		firstName: V[0].first_name,
+		lastName: V[0].last_name,
+		email: V[0].email,
+		phone: V[0].phone,
+		(addresses: ( V map (item)-> {
+						
+						houseNumber: item.house_number,
+						street: item.street,
+						city: item.city,
+						pincode: item.pincode,
+						addressType: item.address_type,
+						addressId: item.address_id
+		             }
+		             
+		             )) if (V[0].address_id != null)
+		
+	}
+}
+---
+customersmappedWithAddresses pluck (V,K,I)-> V]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="929bc995-7779-4ca0-8799-450f64875c39" />
+	</flow>
+</mule>

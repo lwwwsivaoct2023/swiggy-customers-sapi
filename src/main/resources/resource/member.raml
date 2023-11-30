@@ -1,0 +1,57 @@
+#%RAML 1.0 ResourceType
+get?:
+  description: Retrieve <<resourcePathName | !singularize>>   <<resourcePathName | !singularize >>
+  displayName: Get  <<resourcePathName | !singularize>> by <<resourcePathName | !singularize>> ID
+  responses: 
+    200:
+      body:
+        application/json: 
+          type: <<resourcePathName | !singularize | !uppercamelcase>>
+    404:
+      body:
+        application/json:
+          type: !include ../datatype/errormessage.raml
+patch?:
+  description: Update  <<resourcePathName | !singularize>>  info 
+  displayName: Update  <<resourcePathName | !singularize>> by <<resourcePathName | !singularize>> ID
+  body:
+    type: <<resourcePathName | !singularize | !uppercamelcase>>Request
+  responses: 
+    204:
+    501:
+      body:
+        application/json:
+          type: !include ../datatype/errormessage.raml
+delete?:
+  description: Delete <<resourcePathName | !singularize>>
+  displayName: Delete  <<resourcePathName | !singularize>> by <<resourcePathName | !singularize>> ID
+  responses: 
+    200:
+      body:
+    404:
+      body:
+        application/json:
+          type: !include ../datatype/errormessage.raml
+put?:
+  description: Update <<resourcePathName | !singularize>> by <<resourcePathName | !singularize>> ID
+  displayName: Update  <<resourcePathName | !singularize>> by <<resourcePathName | !singularize>> ID
+  body:
+    type: <<resourcePathName | !singularize | !uppercamelcase>>
+
+  responses: 
+    200:
+      body:
+        properties:
+          message: string
+        example:          
+               {
+                "message" : "<<resourcePathName | !singularize | !uppercamelcase>> updated successfully"
+               }
+    201:
+      headers: 
+        Location:
+      body:
+    500:
+      body:
+        application/json:
+          type: !include ../datatype/errormessage.raml
