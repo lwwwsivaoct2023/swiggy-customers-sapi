@@ -4,7 +4,7 @@ post?:
   displayName: Add new <<resourcePathName | !singularize>>
   body:
     application/json:
-      type: <<resourcePathName | !singularize | !uppercamelcase>>Request 
+      type: <<resourcePathName | !singularize | !uppercamelcase>>request 
   responses: 
     201:
       headers: 
