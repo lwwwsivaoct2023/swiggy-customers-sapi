@@ -4,7 +4,7 @@ post?:
   displayName: Add new <<resourcePathName | !singularize>>
   body:
     application/json:
-      type: <<resourcePathName | !singularize | !uppercamelcase>>request 
+      type: <<resourcePathName | !singularize | !uppercamelcase>>
   responses: 
     201:
       headers: 
@@ -16,4 +16,4 @@ post?:
     503:
       body:
         application/json:  
-          type: !include ../datatype/ErrorMessage.raml
+          type: !include ../datatype/errormessage.raml

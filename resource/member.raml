@@ -11,6 +11,8 @@ get?:
       body:
         application/json:
           type: !include ../datatype/errormessage.raml
+         
+    
 patch?:
   description: Update  <<resourcePathName | !singularize>>  info 
   displayName: Update  <<resourcePathName | !singularize>> by <<resourcePathName | !singularize>> ID
