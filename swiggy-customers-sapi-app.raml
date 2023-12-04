@@ -10,6 +10,7 @@ types:
  errorMessage: !include /datatype/errormessage.raml 
  Customer: !include /datatype/customer.raml
  addressRequest: !include /datatype/addressRequest.raml
+ Updatecustomer: !include /datatype/updatecustomer.raml
  
 resourceTypes:
  collection: !include /resource/collection.raml
@@ -30,8 +31,24 @@ traits:
            type: Customer[]
 
   /{id}:
-      type: member
-      get:  
-      put:        
+    type: member
+    get:  
+    put:
+     responses:
+      200:
+        body: Updatecustomer
+         
+    /addresses:
+      type:
+        collection
+      post:
+          
+     
+
+
+
+
+
+         
         
 
